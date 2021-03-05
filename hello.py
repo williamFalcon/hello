@@ -2,9 +2,9 @@ import numpy as np
 from argparse import ArgumentParser
 import torch
 
-parser = Argumentparser()
-parser = parser.add_arguments('--number', default=0, type=int)
-parser = parser.add_arguments('--food_item', default='burgers', type=str)
+parser = ArgumentParser()
+parser.add_argument('--number', default=0, type=int)
+parser.add_argument('--food_item', default='burgers', type=str)
 args = parser.parse_args()
 
 print('hello world')
