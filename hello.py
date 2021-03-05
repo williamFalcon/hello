@@ -1,5 +1,5 @@
 import numpy as np
-from argparse import Argumentparser
+from argparse import ArgumentParser
 import torch
 
 parser = Argumentparser()
