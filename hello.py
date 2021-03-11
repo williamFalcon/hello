@@ -2,6 +2,8 @@ import os
 import numpy as np
 from argparse import ArgumentParser
 import torch
+from torch.utils.tensorboard import SummaryWriter
+
 
 parser = ArgumentParser()
 parser.add_argument('--number', default=0, type=int)
@@ -9,11 +11,17 @@ parser.add_argument('--food_item', default='burgers', type=str)
 parser.add_argument('--data', default=None, type=str)
 args = parser.parse_args()
 
-if args.data is not None:
-	files = list(os.walk(args.data))
-	print('-' * 50)
-	print(f'DATA FOUND! {len(files)} files found at dataset {args.data}')
+# fake tensorboard logs
+writer = SummaryWriter()
+for x in range(1, 10000):
+    y = -np.log(x)
+    writer.add_scalar('y=-log(x)', y, x)
+writer.close()
 
+if args.data is not None:
+    files = list(os.walk(args.data))
+    print('-' * 50)
+    print(f'DATA FOUND! {len(files)} files found at dataset {args.data}')
 
 print('-' * 50)
 print(f'GPUS: There are {torch.cuda.device_count()} GPUs on this machine')
