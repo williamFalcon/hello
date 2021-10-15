@@ -40,7 +40,7 @@ jobs:
           JSON_FILE=$(grid status --export json ${RUN_NAME} | grep Exported | awk '{print $5}')
           RUN_STATUS=$(cat ${JSON_FILE} | jq -c '.[] | .status')
           # pool at 1 min interval
-          while [ "${RUN_STATUS}" = '"queued"' -o "${RUN_STATUS}" = '"running"' ]; do 
+          while [ "${RUN_STATUS}" = '"queued"' -o "${RUN_STATUS}" = '"running"' -o "${RUN_STATUS}" = '"pending"' ]; do 
             echo "${RUN_NAME}:${RUN_STATUS} waiting for status to progress"
             sleep 60 
             JSON_FILE=$(grid status --export json ${RUN_NAME} | grep Exported | awk '{print $5}')
