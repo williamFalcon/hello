@@ -23,8 +23,8 @@ jobs:
       - run: |
           grid login --username ${{ secrets.GRIDAI_USERNAME }} --key ${{ secrets.GRIDAI_KEY }}
       - run: |
-          grid run --localdir --use_spot --dependency_file requirements.txt hello.py | tee /tmp/grid.run.log
-          RUN_NAME=$(grep grid_name /tmp/grid.run.log | cut -d':' -f 2 | sed -e 's/^[[:space:]]*//')
+          grid run --localdir --use_spot --dependency_file requirements.txt hello.py | tee grid.run.log
+          RUN_NAME=$(grep grid_name grid.run.log | cut -d':' -f 2 | sed -e 's/^[[:space:]]*//')
           echo "RUN_NAME=${RUN_NAME}" >> $GITHUB_ENV
           if [[ -z "${RUN_NAME}" ]]; then
             echo "Error: grid_name not found in output"
@@ -35,7 +35,7 @@ jobs:
           RUN_STATUS=$(cat ${JSON_FILE} | jq -r -c '.[] | .status')
           # pool at 1 min interval
           while [ "${RUN_STATUS}" = 'queued' -o "${RUN_STATUS}" = 'running' -o "${RUN_STATUS}" = 'pending' ]; do 
-            echo "${RUN_NAME}:${RUN_STATUS} waiting for status to progress"
+            echo "${RUN_NAME}:${RUN_STATUS} waiting 60 sec for next status"
             sleep 60 
             JSON_FILE=$(grid status --export json ${RUN_NAME} | grep Exported | awk '{print $5}')
             RUN_STATUS=$(cat ${JSON_FILE} | jq -r -c '.[] | .status')
@@ -43,7 +43,7 @@ jobs:
           # only continue on successful completion
           case ${RUN_STATUS} in
             completed|succeeded)
-              echo "${RUN_NAME} completed"
+              echo "${RUN_NAME}:completed"
               ;;
             *)
               echo "Error: ${RUN_NAME} did not finish with completed or succeeded"
@@ -55,4 +55,4 @@ jobs:
             echo "Error: ${RUN_NAME} artifacts not found"
             exit 1
           fi
-          ls grid_artifacts
+          ls grid_artifacts/*
