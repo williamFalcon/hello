@@ -38,17 +38,17 @@ jobs:
           fi
       - run: |
           JSON_FILE=$(grid status --export json ${RUN_NAME} | grep Exported | awk '{print $5}')
-          RUN_STATUS=$(cat ${JSON_FILE} | jq -c '.[] | .status')
+          RUN_STATUS=$(cat ${JSON_FILE} | jq -r -c '.[] | .status')
           # pool at 1 min interval
-          while [ "${RUN_STATUS}" = '"queued"' -o "${RUN_STATUS}" = '"running"' -o "${RUN_STATUS}" = '"pending"' ]; do 
+          while [ "${RUN_STATUS}" = 'queued' -o "${RUN_STATUS}" = 'running' -o "${RUN_STATUS}" = 'pending' ]; do 
             echo "${RUN_NAME}:${RUN_STATUS} waiting for status to progress"
             sleep 60 
             JSON_FILE=$(grid status --export json ${RUN_NAME} | grep Exported | awk '{print $5}')
-            RUN_STATUS=$(cat ${JSON_FILE} | jq -c '.[] | .status')
+            RUN_STATUS=$(cat ${JSON_FILE} | jq -r -c '.[] | .status')
           done
           # only continue on successful completion
           case ${RUN_STATUS} in
-            '"completed"'|'"succeeded"')
+            'completed'|'succeeded')
               echo "${RUN_NAME} completed"
               ;;
             *)
