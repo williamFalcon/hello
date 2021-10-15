@@ -2,13 +2,7 @@ name: "gridai-run"
 
 on:
   push:
-    branches:
-      -main
-      -master
-  pull_request:
-    branches:
-      -main
-      -master    
+  pull_request:  
   schedule:
   # run at 13 min past the hour every day
   # MIN HOUR DOM MON DOW CMD
