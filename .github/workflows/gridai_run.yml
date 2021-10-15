@@ -34,12 +34,23 @@ jobs:
           fi
       - run: |
           JSON_FILE=$(grid status --export json ${RUN_NAME} | grep Exported | awk '{print $5}')
-          while [ "$(cat ${JSON_FILE} | jq -c '.[] | .status')" = '"queued"' ]; do echo "waiting on ${RUN_NAME}"; sleep 60; JSON_FILE=$(grid status --export json ${RUN_NAME} | grep Exported | awk '{print $5}'); done
           RUN_STATUS=$(cat ${JSON_FILE} | jq -c '.[] | .status')
-          if [[ "${RUN_STATUS}" != '"completed"' ]]; then
-            echo "Error: ${RUN_NAME} completed expected but exited with ${RUN_STATUS}"
-            exit 1
-          fi
+          # pool at 1 min interval
+          while [ "${RUN_STATUS}" = '"queued"' -o "${RUN_STATUS}" = '"running"' ]; do 
+            echo "${RUN_NAME}:${RUN_STATUS} waiting for status to progress"
+            sleep 60 
+            JSON_FILE=$(grid status --export json ${RUN_NAME} | grep Exported | awk '{print $5}')
+            RUN_STATUS=$(cat ${JSON_FILE} | jq -c '.[] | .status')
+          done
+          # only continue on successful completion
+          case ${RUN_STATUS} in
+            '"completed"'|'"succeeded"')
+              echo "${RUN_NAME} completed"
+              ;;
+            *)
+              echo "Error: ${RUN_NAME} did not finish with completed or succeeded"
+              exit 1
+          esac
       - run: |
           grid artifacts ${{ env.RUN_NAME }}
           if [[ $? !- 0 ]]; then
