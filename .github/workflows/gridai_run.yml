@@ -1,7 +1,7 @@
 name: "gridai-run"
 
 on:
-  push:
+  # push:
   pull_request:  
   schedule:
   # run at 13 min past the hour every day
@@ -42,7 +42,7 @@ jobs:
           done
           # only continue on successful completion
           case ${RUN_STATUS} in
-            'completed'|'succeeded')
+            completed|succeeded)
               echo "${RUN_NAME} completed"
               ;;
             *)
@@ -51,9 +51,8 @@ jobs:
           esac
       - run: |
           grid artifacts ${{ env.RUN_NAME }}
-          if [[ $? !- 0 ]]; then
+          if [[ $? != 0 ]]; then
             echo "Error: ${RUN_NAME} artifacts not found"
             exit 1
           fi
-          cd ${{ env.RUN_NAME }}*
-          ls
+          ls grid_artifacts
